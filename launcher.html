@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRetro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Condensed:wght@300;400;600;700;900&family=Sofia+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="launcher.css">
+</head>
+<body>
+
+<!-- Ambient background -->
+<div class="ambient-bg">
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+  <div class="noise-overlay"></div>
+</div>
+
+<!-- Identity Setup Modal -->
+<div class="modal-overlay" id="identityModal">
+  <div class="modal-card">
+    <div class="modal-icon">🎮</div>
+    <h2 class="modal-title">Welcome to WebRetro</h2>
+    <p class="modal-subtitle">Set up your player profile to get started</p>
+    <div class="modal-form">
+      <div class="input-group">
+        <label>Username</label>
+        <input type="text" id="usernameInput" placeholder="Enter a username" maxlength="16" autocomplete="off">
+        <span class="input-hint">Shown to friends and in lobbies</span>
+      </div>
+      <div class="friend-code-preview" id="friendCodePreview">
+        <span class="fcp-label">Your Friend Code</span>
+        <span class="fcp-code" id="generatedCode">----</span>
+        <span class="fcp-hint">Share this with others to add you</span>
+      </div>
+    </div>
+    <button class="btn-primary" id="saveIdentityBtn">Start Playing</button>
+  </div>
+</div>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">WR</div>
+    <span class="logo-text">WebRetro</span>
+  </div>
+  <nav class="topbar-nav" id="topbarNav">
+    <button class="nav-tab active" data-section="home">Home</button>
+    <button class="nav-tab" data-section="library">Library</button>
+    <button class="nav-tab" data-section="friends">Friends</button>
+    <button class="nav-tab" data-section="party">Party</button>
+  </nav>
+  <div class="topbar-right">
+    <div class="notif-bell" id="notifBell">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      <span class="notif-dot hidden" id="notifDot"></span>
+    </div>
+    <div class="player-chip" id="playerChip">
+      <div class="player-avatar" id="playerAvatar">?</div>
+      <div class="player-info">
+        <span class="player-name" id="playerNameDisplay">Guest</span>
+        <span class="player-code" id="playerCodeDisplay">#----</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+
+  <!-- ===== HOME SECTION ===== -->
+  <section class="section active" id="section-home">
+
+    <!-- Hero / Featured -->
+    <div class="hero-area">
+      <div class="hero-card" id="heroCard">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+          <div class="hero-badge">Featured Core</div>
+          <h1 class="hero-title" id="heroTitle">melonDS</h1>
+          <p class="hero-desc" id="heroDesc">Nintendo DS emulation with full dual-screen support, touchscreen, and Wi-Fi simulation</p>
+          <div class="hero-meta" id="heroMeta">
+            <span class="hero-tag">Nintendo DS</span>
+            <span class="hero-tag">Dual Screen</span>
+            <span class="hero-tag">Touchscreen</span>
+          </div>
+          <div class="hero-actions">
+            <button class="btn-primary" id="heroLaunchBtn">Launch Core</button>
+            <button class="btn-ghost" id="heroMoreBtn">Learn More</button>
+          </div>
+        </div>
+        <div class="hero-system-logo" id="heroSystemLogo">
+          <div class="system-icon nds"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Play Row -->
+    <div class="content-row">
+      <div class="row-header">
+        <h2 class="row-title">Quick Play</h2>
+        <span class="row-subtitle">Recently used cores</span>
+      </div>
+      <div class="cards-track" id="recentTrack">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- All Systems -->
+    <div class="content-row">
+      <div class="row-header">
+        <h2 class="row-title">All Systems</h2>
+        <button class="row-link" id="viewAllBtn">View All →</button>
+      </div>
+      <div class="cards-track" id="allSystemsTrack">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Online Now -->
+    <div class="content-row">
+      <div class="row-header">
+        <h2 class="row-title">Friends Online</h2>
+        <button class="row-link" data-section="friends">See All →</button>
+      </div>
+      <div class="friends-online-strip" id="onlineStrip">
+        <div class="online-empty">
+          <span>No friends online — <button class="inline-link" data-section="friends">add some!</button></span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== LIBRARY SECTION ===== -->
+  <section class="section" id="section-library">
+    <div class="section-header">
+      <h1 class="section-title">Core Library</h1>
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="nintendo">Nintendo</button>
+        <button class="filter-btn" data-filter="sega">Sega</button>
+        <button class="filter-btn" data-filter="atari">Atari</button>
+        <button class="filter-btn" data-filter="other">Other</button>
+      </div>
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="librarySearch" placeholder="Search cores...">
+      </div>
+    </div>
+    <div class="library-grid" id="libraryGrid">
+      <!-- populated by JS -->
+    </div>
+  </section>
+
+  <!-- ===== FRIENDS SECTION ===== -->
+  <section class="section" id="section-friends">
+    <div class="section-header">
+      <h1 class="section-title">Friends</h1>
+      <button class="btn-primary small" id="addFriendBtn">+ Add Friend</button>
+    </div>
+
+    <!-- Add Friend Panel -->
+    <div class="add-friend-panel hidden" id="addFriendPanel">
+      <div class="afp-inner">
+        <h3>Add a Friend</h3>
+        <p>Enter their friend code to send a request</p>
+        <div class="afp-row">
+          <input type="text" id="friendCodeInput" placeholder="e.g. WR-A3F7" maxlength="8" autocomplete="off">
+          <button class="btn-primary small" id="sendFriendReqBtn">Send Request</button>
+        </div>
+        <p class="afp-hint">Your code: <strong id="myFriendCode">----</strong> — share this with friends!</p>
+      </div>
+    </div>
+
+    <!-- Pending Requests -->
+    <div class="friends-subsection" id="pendingSection" style="display:none">
+      <h3 class="sub-title">Pending Requests</h3>
+      <div class="friends-list" id="pendingList"></div>
+    </div>
+
+    <!-- Online Friends -->
+    <div class="friends-subsection">
+      <h3 class="sub-title">Online</h3>
+      <div class="friends-list" id="onlineFriendsList">
+        <div class="empty-state">No friends online right now</div>
+      </div>
+    </div>
+
+    <!-- All Friends -->
+    <div class="friends-subsection">
+      <h3 class="sub-title">All Friends</h3>
+      <div class="friends-list" id="allFriendsList">
+        <div class="empty-state">You haven't added any friends yet</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PARTY SECTION ===== -->
+  <section class="section" id="section-party">
+    <div class="section-header">
+      <h1 class="section-title">Party & Multiplayer</h1>
+    </div>
+
+    <div class="party-layout">
+
+      <!-- Create Party -->
+      <div class="party-card create-party">
+        <div class="pc-icon">🎮</div>
+        <h3>Create Party</h3>
+        <p>Start a session and invite up to 7 friends to play together</p>
+        <div class="core-select-wrap">
+          <label>Select Core</label>
+          <select id="partyCore" class="styled-select">
+            <option value="">-- Choose a core --</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="createPartyBtn">Create Party</button>
+      </div>
+
+      <!-- Join Party -->
+      <div class="party-card join-party">
+        <div class="pc-icon">🔗</div>
+        <h3>Join by Room Code</h3>
+        <p>Enter a 5-character room code shared by a friend</p>
+        <div class="room-code-input-wrap">
+          <input type="text" id="joinCodeInput" placeholder="e.g. MK7X2" maxlength="5" class="room-code-input" autocomplete="off">
+        </div>
+        <button class="btn-primary" id="joinPartyBtn">Join Party</button>
+      </div>
+
+      <!-- Active Party -->
+      <div class="party-card active-party hidden" id="activePartyCard">
+        <div class="pc-header">
+          <div class="pc-icon">🟢</div>
+          <h3>Active Party</h3>
+          <div class="room-code-display">
+            Code: <strong id="activeRoomCode">-----</strong>
+            <button class="copy-btn" id="copyRoomCode" title="Copy code">⧉</button>
+          </div>
+        </div>
+        <div class="party-slots" id="partySlots">
+          <!-- up to 8 slots -->
+        </div>
+        <div class="party-actions">
+          <button class="btn-primary" id="launchPartyBtn" disabled>Launch Game</button>
+          <button class="btn-ghost" id="inviteFriendsBtn">Invite Friends</button>
+          <button class="btn-danger" id="leavePartyBtn">Leave Party</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent Sessions -->
+    <div class="content-row" style="margin-top:2rem">
+      <div class="row-header">
+        <h2 class="row-title">Quick Invite</h2>
+        <span class="row-subtitle">Send invite to online friends</span>
+      </div>
+      <div class="friends-invite-list" id="friendsInviteList">
+        <div class="empty-state">No friends online to invite</div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- Core Launch Modal -->
+<div class="modal-overlay hidden" id="launchModal">
+  <div class="modal-card launch-modal">
+    <div class="lm-system-icon" id="lmSystemIcon"></div>
+    <h2 class="modal-title" id="lmTitle">Launch Core</h2>
+    <p class="modal-subtitle" id="lmSubtitle">Choose how to start</p>
+    <div class="launch-options">
+      <div class="launch-option" id="lmSolo">
+        <div class="lo-icon">👤</div>
+        <div class="lo-text">
+          <strong>Solo Play</strong>
+          <span>Load a ROM and play offline</span>
+        </div>
+      </div>
+      <div class="launch-option" id="lmNetplay">
+        <div class="lo-icon">🌐</div>
+        <div class="lo-text">
+          <strong>Netplay</strong>
+          <span>Play online with a friend</span>
+        </div>
+      </div>
+      <div class="launch-option" id="lmParty">
+        <div class="lo-icon">🎮</div>
+        <div class="lo-text">
+          <strong>Party Mode</strong>
+          <span>Join or create a party lobby</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-ghost" id="lmCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- Notification Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Webretro inline player (hidden until launch) -->
+<div class="retro-frame-wrap hidden" id="retroFrameWrap">
+  <div class="frame-topbar">
+    <span class="frame-core-name" id="frameCoreLabel">melonDS</span>
+    <div class="frame-meta" id="frameMeta"></div>
+    <div class="frame-controls">
+      <button class="frame-btn" id="frameNetplayBtn" title="Netplay">🌐 Netplay</button>
+      <button class="frame-btn" id="framePartyBtn" title="Party">🎮 Party</button>
+      <button class="frame-btn" id="frameFullscreenBtn" title="Fullscreen">⛶</button>
+      <button class="frame-btn" id="frameBackBtn" title="Back to Launcher">⬅ Back</button>
+    </div>
+  </div>
+  <!-- Webretro mounts its canvas here when launched -->
+  <div id="retroMount"></div>
+</div>
+
+<script src="social/identity.js"></script>
+<script src="social/friends.js"></script>
+<script src="social/party.js"></script>
+<script src="launcher.js"></script>
+</body>
+</html>
